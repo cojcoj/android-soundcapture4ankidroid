@@ -1,8 +1,8 @@
 <resources>
 
-    <string name="app_name">SoundCapture4Ankidroid</string>
+    <string name="app_name">SoundCapture</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_web_dict">WebDictActivity</string>
+    <string name="title_activity_web_dict">SoundCapture</string>
 
 </resources>

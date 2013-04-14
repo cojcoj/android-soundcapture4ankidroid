@@ -38,7 +38,7 @@ public class PlaySound {
 	
 	public String setFilename (String candidate) {
 		if (soundurl == null) {
-			return null;
+			return "";
 		}
 		String extension = "";
 		int i = soundurl.lastIndexOf('.');
@@ -84,29 +84,10 @@ public class PlaySound {
 	public void play() {
 		 new Thread(new Runnable() {
 	    public void run() {
-//	    	if (soundurl.endsWith(".wav")) {
 	   			FileDownload(soundurl);
 	        	Uri tempPath = Uri.parse(filename);
 	        	MediaPlayer player = MediaPlayer.create(mContext, tempPath);
 	        	if (player != null) player.start();
-//	        	File soundfile = new File(filename);
-//	            if (soundfile.exists()) soundfile.delete();			
-//	    	}
-//	    	if (soundurl.endsWith(".ogg")||soundurl.endsWith(".mp3")
-//	   				||soundurl.endsWith(".mp4")||soundurl.endsWith(".m4a")||soundurl.endsWith(".3gp")){
-//	            Uri tempPath = Uri.parse(soundurl);
-//	            MediaPlayer player = MediaPlayer.create(mContext, tempPath);
-//	            if (player != null) {
-//	            	player.start();
-//	            } else {
-//	            	FileDownload(soundurl);
-//	            	tempPath = Uri.parse(filename);
-//	            	player = MediaPlayer.create(mContext, tempPath);
-//	            	if (player != null) player.start();
-//	            }
-//	            File soundfile = new File(filename);
-//	            if (soundfile.exists()) soundfile.delete();
-//	        }
 	    }
 	  }).start();
 	}
@@ -124,9 +105,7 @@ public class PlaySound {
         hClient.getParams().setParameter("http.connection.timeout", new Integer(7000));  
       
         hGet.setURI(uri);  
-      
-        
-        
+
         hResp = hClient.execute(hGet);  
       
         responseCode = hResp.getStatusLine().getStatusCode();  
@@ -154,7 +133,7 @@ public class PlaySound {
             /* Connection Timed Out */  
         }  
       } catch (Exception e) {
-      Log.i(TAG,"Error:" + e);
+    	  Log.i(TAG,"Error:" + e);
       }  
 
     }
