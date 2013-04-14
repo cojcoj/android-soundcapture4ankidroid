@@ -1,28 +1,31 @@
 package com.learnerstechlab.soundcapture4ankidroid;
 
-import android.net.http.SslError;
-import android.os.Bundle;
 import android.app.Activity;
-import android.app.Notification;
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
-import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.net.http.SslError;
+import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.text.ClipboardManager;
+import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.SslErrorHandler;
-import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.TextView;
+import android.widget.EditText;
 
 public class WebDictActivity extends Activity {
 	private static final String TAG = "WebDictActivity";
+	private static final String DICTIONARY = "dictionary";
 	// MyWebChromeClient mChrome;
 	WebView mWebView;
 	private PlaySound playsound;
@@ -30,11 +33,13 @@ public class WebDictActivity extends Activity {
 	String searchword;
 	String soundsaved = "";
 	int mId = 0;
+	private static SharedPreferences mPreferences;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContext = getApplicationContext();
+		mPreferences = getSharedPreferences("sound4ankidroid", MODE_PRIVATE);
 		setContentView(R.layout.activity_web_dict);
 		// mChrome = new MyWebChromeClient();
 		mWebView = (WebView) findViewById(R.id.webview);
@@ -51,11 +56,14 @@ public class WebDictActivity extends Activity {
 		if ((clipboard.hasText())) {
 			searchword = clipboard.getText().toString();
 		} else {
-			// searchword = "";
-			searchword = "configuration";
+			 searchword = "";
+//			searchword = "configuration";
 		}
 
-		mWebView.loadUrl("http://www.thefreedictionary.com/"
+//		mWebView.loadUrl("http://www.thefreedictionary.com/"
+//				+ searchword.replace(" ", "+"));
+		mWebView.loadUrl(
+				mPreferences.getString(DICTIONARY, "http://www.thefreedictionary.com/")
 				+ searchword.replace(" ", "+"));
 
 	}
@@ -180,4 +188,36 @@ public class WebDictActivity extends Activity {
 		// passes it to the NotificationManager
 		mNotificationManager.notify(mId, builder.build());
 	}
+	
+	@Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_web_dict, menu);
+        return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	final EditText input = new EditText(this);
+    	input.setText(mPreferences.getString(DICTIONARY, "http://www.thefreedictionary.com/"));
+    	
+    	if (item.getItemId() == R.id.dictionary) {
+    		new AlertDialog.Builder(this)
+    	    .setTitle("Edit Dictionary")
+    	    .setMessage("Type new web dictionary url")
+    	    .setView(input)
+    	    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+    	        public void onClick(DialogInterface dialog, int whichButton) {
+    	            String value = input.getText().toString(); 
+    	            Editor ed = mPreferences.edit();
+    	            ed.putString(DICTIONARY, value);
+    	            ed.commit();
+    	        }
+    	    }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+    	        public void onClick(DialogInterface dialog, int whichButton) {
+    	            // Do nothing.
+    	        }
+    	    }).show();
+    	}
+    	return true;
+    }
 }
