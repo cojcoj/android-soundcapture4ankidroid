@@ -15,30 +15,41 @@ import android.support.v4.app.NotificationCompat;
 import android.text.ClipboardManager;
 import android.text.Editable;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.Toast;
 
 public class WebDictActivity extends Activity {
 	private static final String TAG = "WebDictActivity";
 	private static final String DICTIONARY = "dictionary";
 	// MyWebChromeClient mChrome;
 	WebView mWebView;
+	private EditText input;
 	private PlaySound playsound;
-	Context mContext;
+	private static Context mContext;
+	private static EditText mEditText;
+	private static String[] mDictPrefixes;
 	String searchword;
 	String soundsaved = "";
 	int mId = 0;
+	static WebDictActivity mActivity;
 	private static SharedPreferences mPreferences;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		mActivity = this;
 		mContext = getApplicationContext();
+		mDictPrefixes = mContext.getResources().getStringArray(R.array.urlprefixes);
 		mPreferences = getSharedPreferences("sound4ankidroid", MODE_PRIVATE);
 		setContentView(R.layout.activity_web_dict);
 		// mChrome = new MyWebChromeClient();
@@ -80,6 +91,7 @@ public class WebDictActivity extends Activity {
 				playsound.setSoundFile(url);
 				soundsaved = playsound
 						.setFilename(searchword.replace(" ", "_"));
+				Toast.makeText(mContext, soundsaved + " download START", Toast.LENGTH_SHORT).show();
 				playsound.play();
 
 				return true;
@@ -129,32 +141,7 @@ public class WebDictActivity extends Activity {
 		clipboard.setText("[sound:" + soundsaved + "]");
 		finish();
 	}
-	
-//	private void displayNotification_old() {
-//		NotificationCompat.Builder mBuilder =
-//	        new NotificationCompat.Builder(this)
-//	        .setSmallIcon(R.drawable.ic_launcher)
-//	        .setContentTitle("Sound Capture for Ankidroid")
-//	        .setContentText("Click to show.");
-//		// Creates an explicit intent for an Activity in your app
-//		
-////		Intent resultIntent = new Intent(this, WebDictActivity.class);
-//		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-////		stackBuilder.addParentStack(WebDictActivity.class);
-////		stackBuilder.addNextIntent(resultIntent);
-//		
-//		PendingIntent resultPendingIntent =
-//		        stackBuilder.getPendingIntent(
-//		            0,
-//		            PendingIntent.FLAG_UPDATE_CURRENT
-//		        );
-//		mBuilder.setContentIntent(resultPendingIntent);
-//		NotificationManager mNotificationManager =
-//		    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//		// mId allows you to update the notification later on.
-//		mNotificationManager.notify(mId, mBuilder.build());
-//	}
-	
+		
 	private void displayNotification() {
 		// Instantiate a Builder object.
 		NotificationCompat.Builder builder =
@@ -197,27 +184,63 @@ public class WebDictActivity extends Activity {
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	final EditText input = new EditText(this);
-    	input.setText(mPreferences.getString(DICTIONARY, "http://www.thefreedictionary.com/"));
+//    	final EditText input = new EditText(this);
+//    	input = new EditText(this);
+//    	input.setText(mPreferences.getString(DICTIONARY, "http://www.thefreedictionary.com/"));
     	
     	if (item.getItemId() == R.id.dictionary) {
-    		new AlertDialog.Builder(this)
-    	    .setTitle("Edit Dictionary")
-    	    .setMessage("Type new web dictionary url")
-    	    .setView(input)
-    	    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-    	        public void onClick(DialogInterface dialog, int whichButton) {
-    	            String value = input.getText().toString(); 
-    	            Editor ed = mPreferences.edit();
-    	            ed.putString(DICTIONARY, value);
-    	            ed.commit();
-    	        }
-    	    }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-    	        public void onClick(DialogInterface dialog, int whichButton) {
-    	            // Do nothing.
-    	        }
-    	    }).show();
+    		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    		View vw = LayoutInflater.from(this).inflate(R.layout.dialog_layout,
+    				null);
+    		builder
+    				.setNegativeButton("Cancel", mCancelListener)
+    				.setPositiveButton("OK", mOkListener)
+    				.setIcon(R.drawable.ic_launcher).setTitle("TITLE").setView(vw);
+
+    		ListView lv = (ListView) vw.findViewById(R.id.listview);
+    		mEditText = (EditText) vw.findViewById(R.id.textview);
+    		ArrayAdapter<CharSequence> adapter = ArrayAdapter
+    				.createFromResource(this, R.array.dict_names,
+    						android.R.layout.simple_list_item_1);
+    		lv.setOnItemClickListener(mItemSelectedListner);
+    		lv.setAdapter(adapter);
+    		mEditText.setText(mPreferences.getString(DICTIONARY, "http://www.thefreedictionary.com/"));
+    		builder.show();
     	}
     	return true;
     }
+    
+	AdapterView.OnItemClickListener mItemSelectedListner =
+		new AdapterView.OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int idx,
+					long arg3) {
+				mEditText.setText(mDictPrefixes[idx]);
+			}
+		
+	};
+
+	DialogInterface.OnClickListener mOkListener = new DialogInterface.OnClickListener() {
+
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			// TODO Auto-generated method stub
+			Editor ed = mPreferences.edit();
+        	ed.putString(DICTIONARY, mEditText.getText().toString());
+        	ed.commit();
+		}
+
+	};
+
+	DialogInterface.OnClickListener mCancelListener = new DialogInterface.OnClickListener() {
+
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			// TODO Auto-generated method stub
+
+		}
+
+	};
+
 }

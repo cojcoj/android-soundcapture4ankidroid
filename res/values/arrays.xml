@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <array name="dict_names">
+		<item>"Dictionary.com"</item>                 
+		<item>"FreeDictionary"</item>                 
+		<item>"MerriamWebster"</item>                        
+    </array>
+    
+    <array name="urlprefixes">
+		<item>"http://m.dictionary.com/d/?q="</item>
+		<item>"http://www.thefreedictionary.com/"</item>
+		<item>"http://i.word.com/idictionary/"</item>
+    </array>
+
+</resources>

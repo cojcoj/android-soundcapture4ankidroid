@@ -13,6 +13,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import android.app.Activity;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -105,6 +106,8 @@ public class PlaySound {
         hClient.getParams().setParameter("http.connection.timeout", new Integer(7000));  
       
         hGet.setURI(uri);  
+        
+//        mActivity.toastMaster(filename);
 
         hResp = hClient.execute(hGet);  
       
@@ -127,9 +130,11 @@ public class PlaySound {
             in.close();  
         }  
         else if (responseCode == HttpStatus.SC_NOT_FOUND) {  
+        	Log.i(TAG,"Error:SC NOT FOUND");
             /* Dowload file not found */  
         }  
         else if (responseCode == HttpStatus.SC_REQUEST_TIMEOUT) {  
+        	Log.i(TAG,"Error:SC REQUEST TIMEOUT");
             /* Connection Timed Out */  
         }  
       } catch (Exception e) {
@@ -137,4 +142,5 @@ public class PlaySound {
       }  
 
     }
+	
 }
