@@ -15,6 +15,7 @@ import android.support.v4.app.NotificationCompat;
 import android.text.ClipboardManager;
 import android.text.Editable;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -242,5 +243,17 @@ public class WebDictActivity extends Activity {
 		}
 
 	};
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+	    // Check if the key event was the Back button and if there's history
+	    if ((keyCode == KeyEvent.KEYCODE_BACK) && mWebView.canGoBack()) {
+	        mWebView.goBack();
+	        return true;
+	    }
+	    // If it wasn't the Back key or there's no web page history, bubble up to the default
+	    // system behavior (probably exit the activity)
+	    return super.onKeyDown(keyCode, event);
+	}
 
 }
