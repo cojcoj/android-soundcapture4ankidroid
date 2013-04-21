@@ -21,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.SslErrorHandler;
+import android.webkit.WebSettings.PluginState;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -39,7 +40,7 @@ public class WebDictActivity extends Activity {
 	private static Context mContext;
 	private static EditText mEditText;
 	private static String[] mDictPrefixes;
-	String searchword;
+	private static String searchword;
 	String soundsaved = "";
 	int mId = 0;
 	static WebDictActivity mActivity;
@@ -60,6 +61,7 @@ public class WebDictActivity extends Activity {
 		mWebView.getSettings().setJavaScriptEnabled(true);
 		mWebView.getSettings().setAllowFileAccess(true);
 		mWebView.getSettings().setPluginsEnabled(true);
+		mWebView.getSettings().setPluginState(PluginState.ON);
 		mWebView.getSettings().setSupportZoom(true);
 		mWebView.getSettings().setBuiltInZoomControls(true);
 		mWebView.setHorizontalScrollBarEnabled(true);
@@ -196,7 +198,7 @@ public class WebDictActivity extends Activity {
     		builder
     				.setNegativeButton("Cancel", mCancelListener)
     				.setPositiveButton("OK", mOkListener)
-    				.setIcon(R.drawable.ic_launcher).setTitle("TITLE").setView(vw);
+    				.setIcon(R.drawable.ic_launcher).setTitle("Dictionaries").setView(vw);
 
     		ListView lv = (ListView) vw.findViewById(R.id.listview);
     		mEditText = (EditText) vw.findViewById(R.id.textview);
@@ -230,6 +232,9 @@ public class WebDictActivity extends Activity {
 			Editor ed = mPreferences.edit();
         	ed.putString(DICTIONARY, mEditText.getText().toString());
         	ed.commit();
+        	mWebView.loadUrl(
+    				mPreferences.getString(DICTIONARY, "http://www.thefreedictionary.com/")
+    				+ searchword.replace(" ", "+"));
 		}
 
 	};
@@ -247,9 +252,44 @@ public class WebDictActivity extends Activity {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 	    // Check if the key event was the Back button and if there's history
-	    if ((keyCode == KeyEvent.KEYCODE_BACK) && mWebView.canGoBack()) {
-	        mWebView.goBack();
-	        return true;
+	    if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+	    	if (mWebView.canGoBack()) {
+		        mWebView.goBack();
+		        return true;
+	    	} else {
+	    		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+	    		builder
+	    				.setMessage("Hide? Exit? or Cancel?")
+	    				.setNegativeButton("Hide", new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface arg0, int arg1) {
+								// TODO Auto-generated method stub
+								displayNotification();
+								ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+								clipboard.setText("[sound:" + soundsaved + "]");
+								finish();
+							}})
+	    				.setNeutralButton("Exit", new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface arg0, int arg1) {
+								// TODO Auto-generated method stub
+								ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+								clipboard.setText("[sound:" + soundsaved + "]");
+								finish();
+							}})
+	    				.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface arg0, int arg1) {
+								// TODO Auto-generated method stub
+								
+							}})
+	    				.setIcon(R.drawable.ic_launcher).setTitle("Cannot go back.");
+	    		builder.show();
+	    		return true;
+	    	}
 	    }
 	    // If it wasn't the Back key or there's no web page history, bubble up to the default
 	    // system behavior (probably exit the activity)

@@ -4,13 +4,15 @@
     <array name="dict_names">
 		<item>"Dictionary.com"</item>                 
 		<item>"FreeDictionary"</item>                 
-		<item>"MerriamWebster"</item>                        
+		<item>"MerriamWebster"</item> 
+		<!-- <item>"Forvo"</item> -->                       
     </array>
     
     <array name="urlprefixes">
 		<item>"http://m.dictionary.com/d/?q="</item>
 		<item>"http://www.thefreedictionary.com/"</item>
 		<item>"http://i.word.com/idictionary/"</item>
+		<!-- <item>"http://en.forvo.com/search/"</item> -->
     </array>
 
 </resources>
