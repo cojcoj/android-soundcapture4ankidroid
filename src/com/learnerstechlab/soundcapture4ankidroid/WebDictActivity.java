@@ -21,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.SslErrorHandler;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings.PluginState;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -28,6 +29,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class WebDictActivity extends Activity {
@@ -35,6 +38,8 @@ public class WebDictActivity extends Activity {
 	private static final String DICTIONARY = "dictionary";
 	// MyWebChromeClient mChrome;
 	WebView mWebView;
+	static MyWebChromeClient mWebChromeClient;
+	static ProgressBar mProgressBar;
 	private EditText input;
 	private PlaySound playsound;
 	private static Context mContext;
@@ -58,6 +63,8 @@ public class WebDictActivity extends Activity {
 		mWebView = (WebView) findViewById(R.id.webview);
 		// mWebView.setWebChromeClient(mChrome);
 		mWebView.setWebViewClient(new MyWebViewClient());
+		mWebChromeClient = new MyWebChromeClient();
+		mWebView.setWebChromeClient(mWebChromeClient);
 		mWebView.getSettings().setJavaScriptEnabled(true);
 		mWebView.getSettings().setAllowFileAccess(true);
 		mWebView.getSettings().setPluginsEnabled(true);
@@ -65,6 +72,11 @@ public class WebDictActivity extends Activity {
 		mWebView.getSettings().setSupportZoom(true);
 		mWebView.getSettings().setBuiltInZoomControls(true);
 		mWebView.setHorizontalScrollBarEnabled(true);
+		
+		mProgressBar = (ProgressBar) findViewById(R.id.progressbar);
+		mProgressBar.setIndeterminate(false);
+		mWebChromeClient.setProgressView(mProgressBar);
+		
 
 		ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 		if ((clipboard.hasText())) {
@@ -125,6 +137,25 @@ public class WebDictActivity extends Activity {
 		}
 
 	}
+	
+	private class MyWebChromeClient extends WebChromeClient {
+	   	ProgressBar mProgress;
+	   	String mText;
+	   	public void setProgressView (ProgressBar progressview) {
+	   		mProgress = progressview;
+//	   		mText = mProgress.getText().toString();
+	   	}
+	   	@Override
+	   	public void onProgressChanged (WebView view, int progress) {
+	   		if (progress != 100) {
+	   			mProgress.setVisibility(View.VISIBLE);
+	   			mProgress.setProgress(progress);
+	   		} else {
+	   			mProgress.setVisibility(View.GONE);
+	   		}
+	   	}
+	   	
+	   }
 	
 	@Override
 	public void onStop(){
